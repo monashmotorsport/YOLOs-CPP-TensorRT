@@ -18,8 +18,7 @@ permissions:
   packages: read
 
 env:
-  TENSORRT_VERSION: "10"
-  CUDA_VERSION: "12-4"
+  CUDA_VERSION: "12-6"
 
 jobs:
   # ==========================================================================
@@ -37,9 +36,9 @@ jobs:
         with:
           path: |
             /var/cache/apt/archives
-          key: apt-cuda-trt-${{ runner.os }}-${{ env.CUDA_VERSION }}-${{ env.TENSORRT_VERSION }}
+          key: apt-cuda-minimal-${{ runner.os }}-${{ env.CUDA_VERSION }}
           restore-keys: |
-            apt-cuda-trt-${{ runner.os }}-
+            apt-cuda-minimal-${{ runner.os }}-
 
       - name: Install build dependencies
         run: |
@@ -50,19 +49,30 @@ jobs:
             libopencv-dev \
             wget
 
-      - name: Install CUDA Toolkit and TensorRT
+      - name: Install CUDA and TensorRT (minimal — compile only)
         run: |
-          # Add NVIDIA package repository
-          wget -q https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2204/x86_64/cuda-keyring_1.1-1_all.deb
+          # Auto-detect Ubuntu version for correct NVIDIA repo
+          UBUNTU_VER=$(. /etc/os-release && echo "${VERSION_ID}" | tr -d '.')
+          echo "Runner OS: Ubuntu ${UBUNTU_VER}"
+
+          wget -q "https://developer.download.nvidia.com/compute/cuda/repos/ubuntu${UBUNTU_VER}/x86_64/cuda-keyring_1.1-1_all.deb"
           sudo dpkg -i cuda-keyring_1.1-1_all.deb
           rm cuda-keyring_1.1-1_all.deb
           sudo apt-get update
 
-          # Install CUDA toolkit (compiler + headers + stubs for linking)
+          # Install ONLY minimal packages for compilation (no nsight/profiler bloat)
           sudo apt-get install -y --no-install-recommends \
-            cuda-toolkit-${CUDA_VERSION} \
+            cuda-nvcc-${CUDA_VERSION} \
+            cuda-cudart-dev-${CUDA_VERSION} \
             libnvinfer-dev \
             libnvinfer-headers-dev
+
+          # Make nvcc available on PATH
+          CUDA_DIR="/usr/local/cuda-${CUDA_VERSION//-/.}"
+          echo "${CUDA_DIR}/bin" >> "$GITHUB_PATH"
+          echo "CUDA_PATH=${CUDA_DIR}" >> "$GITHUB_ENV"
+          echo "--- Installed CUDA compiler ---"
+          "${CUDA_DIR}/bin/nvcc" --version
 
       - name: Build project
         run: |
@@ -99,9 +109,9 @@ jobs:
         with:
           path: |
             /var/cache/apt/archives
-          key: apt-cuda-trt-${{ runner.os }}-${{ env.CUDA_VERSION }}-${{ env.TENSORRT_VERSION }}
+          key: apt-cuda-minimal-${{ runner.os }}-${{ env.CUDA_VERSION }}
           restore-keys: |
-            apt-cuda-trt-${{ runner.os }}-
+            apt-cuda-minimal-${{ runner.os }}-
 
       - name: Install build dependencies
         run: |
@@ -112,17 +122,26 @@ jobs:
             libopencv-dev \
             wget
 
-      - name: Install CUDA Toolkit and TensorRT
+      - name: Install CUDA and TensorRT (minimal — compile only)
         run: |
-          wget -q https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2204/x86_64/cuda-keyring_1.1-1_all.deb
+          UBUNTU_VER=$(. /etc/os-release && echo "${VERSION_ID}" | tr -d '.')
+          echo "Runner OS: Ubuntu ${UBUNTU_VER}"
+
+          wget -q "https://developer.download.nvidia.com/compute/cuda/repos/ubuntu${UBUNTU_VER}/x86_64/cuda-keyring_1.1-1_all.deb"
           sudo dpkg -i cuda-keyring_1.1-1_all.deb
           rm cuda-keyring_1.1-1_all.deb
           sudo apt-get update
 
           sudo apt-get install -y --no-install-recommends \
-            cuda-toolkit-${CUDA_VERSION} \
+            cuda-nvcc-${CUDA_VERSION} \
+            cuda-cudart-dev-${CUDA_VERSION} \
             libnvinfer-dev \
             libnvinfer-headers-dev
+
+          CUDA_DIR="/usr/local/cuda-${CUDA_VERSION//-/.}"
+          echo "${CUDA_DIR}/bin" >> "$GITHUB_PATH"
+          echo "CUDA_PATH=${CUDA_DIR}" >> "$GITHUB_ENV"
+          "${CUDA_DIR}/bin/nvcc" --version
 
       - name: Build benchmark tool
         working-directory: benchmarks
