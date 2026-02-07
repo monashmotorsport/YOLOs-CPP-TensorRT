@@ -265,7 +265,7 @@ python convert_to_tensorrt.py --onnx model.onnx --verbose
 - [TensorRT Developer Guide](https://docs.nvidia.com/deeplearning/tensorrt/)
 - [TensorRT Python API](https://docs.nvidia.com/deeplearning/tensorrt/api/python_api/)
 - [ONNX Model Zoo](https://github.com/onnx/models)
-- [YOLOs-CPP Repository](https://github.com/Geekgineer/YOLOs-CPP)
+- [YOLOs-CPP Repository](https://github.com/Geekgineer/YOLOs-CPP-TensorRT)
 
 ## 🤝 Contributing
 

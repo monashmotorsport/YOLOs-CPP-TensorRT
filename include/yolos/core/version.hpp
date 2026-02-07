@@ -6,7 +6,7 @@
 // Defines YOLO model version enum and utilities for runtime version detection
 // based on output tensor shapes.
 //
-// Author: YOLOs-CPP Team, https://github.com/Geekgineer/YOLOs-CPP
+// Author: YOLOs-TRT Team, https://github.com/Geekgineer/YOLOs-CPP-TensorRT
 // ============================================================================
 
 #include <vector>

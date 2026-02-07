@@ -5,7 +5,7 @@
 // ============================================================================
 // NMS implementations for axis-aligned and oriented bounding boxes.
 //
-// Author: YOLOs-CPP Team, https://github.com/Geekgineer/YOLOs-CPP
+// Author: YOLOs-TRT Team, https://github.com/Geekgineer/YOLOs-CPP-TensorRT
 // ============================================================================
 
 #include <algorithm>

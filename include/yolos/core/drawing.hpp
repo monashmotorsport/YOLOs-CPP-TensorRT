@@ -6,7 +6,7 @@
 // Visualization functions for detection results including bounding boxes,
 // labels, masks, and pose skeletons.
 //
-// Author: YOLOs-CPP Team, https://github.com/Geekgineer/YOLOs-CPP
+// Author: YOLOs-TRT Team, https://github.com/Geekgineer/YOLOs-CPP-TensorRT
 // ============================================================================
 
 #include <opencv2/opencv.hpp>

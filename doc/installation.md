@@ -28,7 +28,7 @@ This guide covers system requirements, build options, and troubleshooting for YO
 
 ```bash
 # Clone the repository
-git clone https://github.com/Geekgineer/YOLOs-CPP.git
+git clone https://github.com/Geekgineer/YOLOs-CPP-TensorRT.git
 cd YOLOs-CPP
 
 # Build (auto-detects system TensorRT and CUDA)

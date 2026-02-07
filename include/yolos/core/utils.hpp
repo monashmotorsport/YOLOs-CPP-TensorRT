@@ -6,7 +6,7 @@
 // Common utility functions used across all YOLO tasks.
 // All functions are marked inline to prevent ODR violations.
 //
-// Author: YOLOs-CPP Team, https://github.com/Geekgineer/YOLOs-CPP
+// Author: YOLOs-TRT Team, https://github.com/Geekgineer/YOLOs-CPP-TensorRT
 // ============================================================================
 
 #include <algorithm>

@@ -6,7 +6,7 @@
 // Optimized image preprocessing functions for YOLO inference including
 // letterbox resizing, coordinate scaling, and blob conversion.
 //
-// Author: YOLOs-CPP Team, https://github.com/Geekgineer/YOLOs-CPP
+// Author: YOLOs-TRT Team, https://github.com/Geekgineer/YOLOs-CPP-TensorRT
 // ============================================================================
 
 #include <opencv2/opencv.hpp>

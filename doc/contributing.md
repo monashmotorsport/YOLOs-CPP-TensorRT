@@ -24,7 +24,7 @@ Thank you for your interest in contributing! This guide will help you get starte
 ### 2. Fork and Clone
 
 ```bash
-git clone https://github.com/YOUR_USERNAME/YOLOs-CPP.git
+git clone https://github.com/YOUR_USERNAME/YOLOs-CPP-TensorRT.git
 cd YOLOs-CPP
 ```
 

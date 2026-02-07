@@ -23,8 +23,8 @@ This project was inspired by and builds upon work from:
 
 Thanks to everyone who has contributed to YOLOs-TRT:
 
-<a href="https://github.com/Geekgineer/YOLOs-CPP/graphs/contributors">
-  <img src="https://contrib.rocks/image?repo=Geekgineer/YOLOs-CPP" />
+<a href="https://github.com/Geekgineer/YOLOs-CPP-TensorRT/graphs/contributors">
+  <img src="https://contrib.rocks/image?repo=Geekgineer/YOLOs-CPP-TensorRT" />
 </a>
 
 ## Special Thanks

@@ -5,7 +5,7 @@
 // ============================================================================
 // Single source of truth for shared data structures used across all YOLO tasks.
 // 
-// Author: YOLOs-CPP Team, https://github.com/Geekgineer/YOLOs-CPP
+// Author: YOLOs-TRT Team, https://github.com/Geekgineer/YOLOs-CPP-TensorRT
 // ============================================================================
 
 #include <vector>
