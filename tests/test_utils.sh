@@ -138,6 +138,17 @@ convert_onnx_to_trt() {
 
     cd "$models_dir" || return 1
 
+    # Ensure trtexec is discoverable. Ubuntu's tensorrt apt package ships it under
+    # /usr/src/tensorrt/bin/, which is not on the default PATH.
+    if ! command -v trtexec &>/dev/null; then
+        for trt_bin in /usr/src/tensorrt/bin /usr/local/tensorrt/bin /opt/tensorrt/bin; do
+            if [ -x "$trt_bin/trtexec" ]; then
+                export PATH="$trt_bin:$PATH"
+                break
+            fi
+        done
+    fi
+
     echo -e "${BLUE}Converting ONNX models to TensorRT engines...${NC}"
 
     local converted=0
