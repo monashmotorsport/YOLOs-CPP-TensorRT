@@ -18,9 +18,12 @@ namespace cuda {
 
 /// @brief GPU letterbox + BGR→RGB + normalize in a single kernel.
 ///
-/// The source image must already reside in GPU memory (HWC, uint8, BGR).
-/// The output is written in NCHW float (RGB, normalised [0,1]) directly
-/// into the caller-provided device buffer (e.g. TRT input buffer).
+/// The source image must already reside in GPU memory as tight HWC uint8 BGR
+/// (row stride = srcW * 3). Callers with padded GPU sources (e.g. ZED sl::Mat)
+/// must pack into a tight buffer first — see TrtSessionBase::inferGpuDevice().
+///
+/// Output is NCHW float RGB normalised to [0, 1], written directly into the
+/// TensorRT input binding (no intermediate cv::Mat).
 ///
 /// Padding colour is 114/255 (Ultralytics convention).
 /// Asymmetric padding with -0.1/+0.1 rounding matches Ultralytics exactly.

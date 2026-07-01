@@ -71,11 +71,13 @@ public:
 
     virtual ~YOLODetector() = default;
 
-    /// @brief Run detection on an image — full GPU pipeline
+    /// @brief Run detection on an image in host memory (cv::Mat BGR).
+    ///
+    /// Convenience wrapper: inferGpu() + postprocess with letterbox inverse transform.
     /// @param image Input image (BGR format)
     /// @param confThreshold Confidence threshold
     /// @param iouThreshold IoU threshold for NMS
-    /// @return Vector of detections
+    /// @return Vector of detections in original image pixel coordinates
     virtual std::vector<Detection> detect(const cv::Mat& image,
                                           float confThreshold = 0.4f,
                                           float iouThreshold = 0.45f) {
@@ -84,6 +86,24 @@ public:
 
         // Postprocess using cached scale/pad from GPU preprocess
         return postprocess(image.size(), inputShape_, version_, confThreshold, iouThreshold);
+    }
+
+    /// @brief Run detection on a BGR frame already on the GPU (mms_camera / ZED path).
+    ///
+    /// Skips host upload — calls inferGpuDevice() then the same CPU postprocess as detect().
+    /// Bounding boxes are returned in the coordinate space of (width × height), i.e. the
+    /// downscaled ZED publish resolution when called from CameraNode.
+    ///
+    /// @param d_bgr        Device pointer from e.g. sl::Mat::getPtr<sl::uchar1>(MEM::GPU)
+    /// @param width        Image width in pixels
+    /// @param height       Image height in pixels
+    /// @param stepBytes    Row stride in bytes (sl::Mat::getStepBytes(MEM::GPU))
+    /// @param confThreshold Minimum detection confidence
+    /// @param iouThreshold  NMS IoU threshold (ignored for end-to-end models like YOLOv10/v26)
+    virtual std::vector<Detection> detectGpu(const uint8_t* d_bgr, int width, int height, size_t stepBytes,
+                                             float confThreshold = 0.4f, float iouThreshold = 0.45f) {
+        inferGpuDevice(d_bgr, width, height, stepBytes);
+        return postprocess(cv::Size(width, height), inputShape_, version_, confThreshold, iouThreshold);
     }
 
     /// @brief Draw detections on an image
@@ -127,7 +147,10 @@ protected:
         return version::detectFromOutputShape(outputShape, numOutputs());
     }
 
-    /// @brief Postprocess dispatch — uses cached scale/pad from GPU preprocess
+    /// @brief Postprocess dispatch — uses cached scale/pad from GPU preprocess.
+    ///
+    /// getCachedScale/PadX/PadY are set by inferGpu/inferGpuDevice via computeScalePad()
+    /// and undo the letterbox transform so boxes land in original (srcW × srcH) pixels.
     virtual std::vector<Detection> postprocess(const cv::Size& originalSize,
                                                const cv::Size& /*resizedShape*/,
                                                YOLOVersion version,

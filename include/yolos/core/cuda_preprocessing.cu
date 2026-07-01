@@ -17,13 +17,12 @@ namespace cuda {
 // ============================================================================
 // Letterbox + BGR→RGB + Normalize Kernel
 // ============================================================================
-// Each thread computes one pixel in the destination (dstH x dstW) image.
-// If the pixel falls within the resized source region, it reads from the
-// source image and writes normalised RGB into 3 separate channel planes
-// (NCHW layout). Otherwise it writes the padding value.
+// Each thread writes one destination pixel in the letterboxed (dstW × dstH) canvas.
+// Source must be tight HWC BGR on device (stride = srcW * 3) — inferGpuDevice() packs
+// padded inputs (e.g. ZED GPU mats) into deviceSrc_ before calling this kernel.
 
 __global__ void letterboxNormalizeKernel(
-    const uint8_t* __restrict__ src,   // HWC BGR source image (device)
+    const uint8_t* __restrict__ src,   // HWC BGR, tight stride (srcW*3 bytes/row)
     float*         __restrict__ dst,   // NCHW RGB float output
     int srcW, int srcH,                // source dimensions
     int dstW, int dstH,                // destination (letterbox) dimensions
@@ -58,7 +57,7 @@ __global__ void letterboxNormalizeKernel(
         const float ax = fx - x0;
         const float ay = fy - y0;
 
-        // Read 4 corners (BGR, HWC layout)
+        // Read 4 corners (BGR, HWC layout — stride fixed at srcW*3, set by inferGpuDevice pack)
         const int stride = srcW * 3;
         const uint8_t* p00 = src + y0 * stride + x0 * 3;
         const uint8_t* p01 = src + y0 * stride + x1 * 3;
@@ -96,7 +95,9 @@ void letterboxPreprocess(
     float* d_dst, int dstW, int dstH,
     cudaStream_t stream
 ) {
-    // Compute resize dimensions (maintain aspect ratio)
+    // Letterbox: scale to fit inside dstW×dstH while preserving aspect ratio, then pad.
+    // Scale/pad values must match computeScalePad() in trt_session_base.hpp for correct
+    // bbox inverse-transform in detection postprocess.
     const float scale = fminf(
         static_cast<float>(dstH) / srcH,
         static_cast<float>(dstW) / srcW
